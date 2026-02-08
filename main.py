@@ -31,13 +31,41 @@ def clean_float(text):
 # ================= 1. İSTANBUL (İSKİ) =================
 def get_istanbul_data(page):
     print("   ⏳ İstanbul taranıyor...")
+    
+    # 1. PLAN: Detay Sayfası
     try:
         page.goto("https://www.iski.istanbul/web/tr-TR/baraj-doluluk", timeout=60000)
-        page.wait_for_timeout(3000)
+        # Sadece beklemek yetmez, ağ trafiğinin durmasını bekle
+        page.wait_for_load_state("networkidle", timeout=60000)
+        page.wait_for_timeout(5000) # Ekstra bekleme (Garanti olsun)
+        
         text = page.inner_text("body")
         match = re.search(r'baraj doluluk oran[ıi]\s*%?\s*(\d{1,2}[.,]\d{1,2})', text, re.IGNORECASE)
-        return clean_float(match.group(1)) if match else 0.0
-    except: return 0.0
+        
+        if match:
+            val = clean_float(match.group(1))
+            if val > 0: return val
+    except Exception as e:
+        print(f"      ⚠️ İSKİ Detay Sayfası Hatası: {e}")
+
+    # 2. PLAN: Ana Sayfa (Yedek)
+    print("      ⚠️ Detaydan alınamadı, Ana Sayfa deneniyor...")
+    try:
+        page.goto("https://www.iski.istanbul/", timeout=60000)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(5000)
+        
+        text = page.inner_text("body")
+        # Ana sayfada genelde "Baraj Doluluk %34.56" yazar
+        match = re.search(r'Baraj.*?%\s*(\d{1,2}[.,]\d{1,2})', text, re.IGNORECASE)
+        
+        if match:
+            return clean_float(match.group(1))
+            
+    except Exception as e:
+        print(f"      ❌ İSKİ Ana Sayfa Hatası: {e}")
+        
+    return 0.0
 
 # ================= 2. ANKARA (ASKİ) =================
 def get_ankara_data(page):
@@ -114,79 +142,66 @@ def get_aydin_data(page):
         print(f"   ❌ Aydın Hatası: {e}")
         return 0.0
 # ================= 7. BALIKESİR (BASKİ) =================
-from datetime import datetime
-
+# ================= 7. BALIKESİR (BASKİ - XPATH MODU) =================
 def get_balikesir_data(page):
-    print(" ⏳ Balıkesir (BASKİ) taranıyor...")
+    print("   ⏳ Balıkesir (BASKİ) taranıyor...")
 
     try:
+        # 1. Siteye git
         page.goto("https://e-vatandas.balsu.gov.tr/BarajDoluluk/Index/", 
                   timeout=90000, 
                   wait_until="domcontentloaded")
         
-        page.wait_for_load_state("networkidle", timeout=60000)
-        page.wait_for_timeout(15000)
+        # 2. Tablonun yüklenmesini bekle (Herhangi bir 'td' hücresi gelene kadar)
+        try:
+            page.wait_for_selector("td", state="visible", timeout=20000)
+        except:
+            print("      ⚠️ Tablo yüklenemedi, HTML taramasına geçiliyor...")
 
-        gonen_oran = 0.0
-        en_guncel_tarih_str = ""
-        en_guncel_tarih_obj = datetime(1900, 1, 1)  # çok eski bir başlangıç tarihi
+        # 3. İKİZCETEPELER BARAJI (Merkez Barajı) için XPath Kullan
+        # Mantık: İçinde 'İKİZCETEPELER' geçen satırı bul, o satırdaki son hücreyi al
+        try:
+            # Bu XPath şu demek: "İKİZCETEPELER" yazısını içeren 'tr'yi bul, onun içindeki son 'td'yi getir.
+            element = page.locator("//tr[contains(., 'İKİZCETEPELER')]//td[last()]")
+            if element.count() > 0:
+                text = element.inner_text()
+                val = clean_float(text)
+                if val > 0:
+                    print(f"      ✅ İkizcetepeler (XPath): %{val}")
+                    return val
+        except Exception as e:
+            print(f"      ⚠️ XPath Hatası: {e}")
 
-        td_elements = page.locator("td").all_inner_texts()
+        # 4. Alternatif: GÖNEN BARAJI
+        try:
+            element = page.locator("//tr[contains(., 'GÖNEN')]//td[last()]")
+            if element.count() > 0:
+                text = element.inner_text()
+                val = clean_float(text)
+                if val > 0:
+                    print(f"      ✅ Gönen (XPath): %{val}")
+                    return val
+        except: pass
 
-        i = 0
-        while i < len(td_elements) - 2:
-            baraj_adi = td_elements[i].strip().upper()
-            tarih_str = td_elements[i+1].strip()
-            oran_str = td_elements[i+2].strip()
-
-            if "GÖNEN" in baraj_adi or "YENİCE" in baraj_adi:
-                oran_clean = oran_str.replace(",", ".").strip()
-                try:
-                    oran = float(oran_clean)
-                    if 0 < oran <= 100:
-                        try:
-                            tarih_obj = datetime.strptime(tarih_str, "%d.%m.%Y")
-                            
-                            if tarih_obj > en_guncel_tarih_obj:
-                                gonen_oran = oran
-                                en_guncel_tarih_obj = tarih_obj
-                                en_guncel_tarih_str = tarih_str
-                                print(f"  → Bulundu: {baraj_adi} - Tarih: {tarih_str} - Oran: %{oran:.2f}")
-                        except ValueError:
-                            print(f"  → Tarih formatı hatalı: {tarih_str}")
-                            continue
-                except ValueError:
-                    pass
-
-            i += 3  
-
-        if gonen_oran == 0:
-            html = page.content()
-            matches = re.findall(r'(GÖNEN\s*-\s*YENİCE[^<]*?)(\d{2}\.\d{2}\.\d{4})[^<]*?(\d{1,3}(?:[.,]\d{1,2})?)', html, re.IGNORECASE | re.DOTALL)
-            for match in matches:
-                tarih_str = match[1]
-                oran_str = match[2].replace(",", ".")
-                try:
-                    oran = float(oran_str)
-                    tarih_obj = datetime.strptime(tarih_str, "%d.%m.%Y")
-                    if tarih_obj > en_guncel_tarih_obj:
-                        gonen_oran = oran
-                        en_guncel_tarih_obj = tarih_obj
-                        en_guncel_tarih_str = tarih_str
-                        print(f"  → Yedek regex bulundu: Tarih {tarih_str} - %{oran:.2f}")
-                except:
-                    pass
-
-        if gonen_oran > 0:
-            print(f"  → En güncel Gönen-Yenice Barajı (Tarih: {en_guncel_tarih_str}): %{gonen_oran:.2f}")
-            print(f"  → Dönen değer: %{gonen_oran:.2f}")
-            return round(gonen_oran, 2)
+        # 5. HİÇBİRİ ÇALIŞMAZSA: Sayfa Kaynağında Kaba Kuvvet (Regex)
+        # HTML kodunu string olarak alıp içinde ne var ne yok tarıyoruz
+        content = page.content()
         
-        print("  → Gönen-Yenice için veri yakalanamadı")
+        # Örn: <td>45,20</td> veya <td>% 45</td> formatlarını arar
+        matches = re.findall(r'>\s*%?\s*(\d{2}[.,]\d{2})\s*<', content)
+        if matches:
+            # Bulunan ilk mantıklı sayıyı döndür
+            for m in matches:
+                val = clean_float(m)
+                if 10 < val < 100:
+                    print(f"      ⚠️ Regex ile kurtarılan veri: %{val}")
+                    return val
+
+        print("      ❌ Balıkesir verisi hiçbir yöntemle alınamadı.")
         return 0.0
 
     except Exception as e:
-        print(f"  → Balıkesir genel hata: {str(e)}")
+        print(f"      ❌ Balıkesir Genel Hata: {e}")
         return 0.0
 # ================= 9. MUĞLA (MUSKİ) =================
 def get_mugla_data(page):
