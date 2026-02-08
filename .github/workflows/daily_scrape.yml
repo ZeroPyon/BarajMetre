@@ -2,8 +2,8 @@ name: Gunluk Baraj Verisi
 
 on:
   schedule:
-    - cron: '0 8 * * *' # Her gün sabah 08:00 (UTC) - Türkiye saatiyle 11:00 gibi
-  workflow_dispatch: # Manuel tetikleme butonu ekler
+    - cron: '0 8 * * *' # Her gün TSİ 11:00'de çalışır
+  workflow_dispatch: # Manuel tetikleme butonu
 
 permissions:
   contents: write
@@ -23,8 +23,11 @@ jobs:
 
     - name: Kütüphaneleri Yükle
       run: |
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
-        playwright install chromium # Playwright için tarayıcıyı indirir
+        # FIX: Playwright komutunu doğrudan değil, python modülü olarak çağırıyoruz
+        python -m playwright install chromium
+        sudo python -m playwright install-deps # Sistem dosyaları için sudo ekledik
 
     - name: Scripti Çalıştır
       run: python main.py
@@ -34,5 +37,5 @@ jobs:
         git config --global user.name 'BarajBot'
         git config --global user.email 'bot@barajmetre.com'
         git add barajlar.json
-        # Eğer değişiklik varsa commit at, yoksa hata verme
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Veriler güncellendi: $(date)" && git push)
+        # Değişiklik varsa commit at, yoksa hata verme (exit 0)
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Veriler guncellendi: $(date)" && git push)
