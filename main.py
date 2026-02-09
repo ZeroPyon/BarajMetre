@@ -149,52 +149,56 @@ def get_aydin_data(page):
         print(f"   ❌ Aydın Hatası: {e}")
         return 0.0
 # ================= 7. BALIKESİR (BASKİ) =================
+# ================= 7. BALIKESİR (BASKİ - MANUEL DESTEKLİ) =================
 from datetime import datetime
 
 def get_balikesir_data(page):
-    print(" ⏳ Balıkesir (BASKİ) taranıyor...")
+    # 👇 EĞER SİTE AÇILMAZSA BU DEĞER GÖZÜKECEK
+    MANUEL_DEGER = 95.68
+    
+    print(f"   ⏳ Balıkesir (BASKİ) taranıyor... (Hata olursa manuel: %{MANUEL_DEGER})")
 
     try:
         page.goto("https://e-vatandas.balsu.gov.tr/BarajDoluluk/Index/", 
                   timeout=90000, 
                   wait_until="domcontentloaded")
         
-        page.wait_for_load_state("networkidle", timeout=60000)
-        page.wait_for_timeout(15000)
+        # Ağ trafiği dursa bile bazen tablo geç gelir, biraz bekle
+        page.wait_for_timeout(10000)
 
         gonen_oran = 0.0
         en_guncel_tarih_str = ""
-        en_guncel_tarih_obj = datetime(1900, 1, 1)  # çok eski bir başlangıç tarihi
+        en_guncel_tarih_obj = datetime(1900, 1, 1)
 
-        td_elements = page.locator("td").all_inner_texts()
+        # Tabloyu tara
+        try:
+            td_elements = page.locator("td").all_inner_texts()
+            i = 0
+            while i < len(td_elements) - 2:
+                baraj_adi = td_elements[i].strip().upper()
+                tarih_str = td_elements[i+1].strip()
+                oran_str = td_elements[i+2].strip()
 
-        i = 0
-        while i < len(td_elements) - 2:
-            baraj_adi = td_elements[i].strip().upper()
-            tarih_str = td_elements[i+1].strip()
-            oran_str = td_elements[i+2].strip()
+                if "GÖNEN" in baraj_adi or "YENİCE" in baraj_adi:
+                    oran_clean = oran_str.replace(",", ".").strip()
+                    try:
+                        oran = float(oran_clean)
+                        if 0 < oran <= 100:
+                            try:
+                                tarih_obj = datetime.strptime(tarih_str, "%d.%m.%Y")
+                                if tarih_obj > en_guncel_tarih_obj:
+                                    gonen_oran = oran
+                                    en_guncel_tarih_obj = tarih_obj
+                                    en_guncel_tarih_str = tarih_str
+                            except ValueError:
+                                continue
+                    except ValueError:
+                        pass
+                i += 3
+        except:
+            pass # Tablo okuma hatası olursa regex'e geç
 
-            if "GÖNEN" in baraj_adi or "YENİCE" in baraj_adi:
-                oran_clean = oran_str.replace(",", ".").strip()
-                try:
-                    oran = float(oran_clean)
-                    if 0 < oran <= 100:
-                        try:
-                            tarih_obj = datetime.strptime(tarih_str, "%d.%m.%Y")
-                            
-                            if tarih_obj > en_guncel_tarih_obj:
-                                gonen_oran = oran
-                                en_guncel_tarih_obj = tarih_obj
-                                en_guncel_tarih_str = tarih_str
-                                print(f"  → Bulundu: {baraj_adi} - Tarih: {tarih_str} - Oran: %{oran:.2f}")
-                        except ValueError:
-                            print(f"  → Tarih formatı hatalı: {tarih_str}")
-                            continue
-                except ValueError:
-                    pass
-
-            i += 3  
-
+        # Tablodan çıkmadıysa Regex (B Planı)
         if gonen_oran == 0:
             html = page.content()
             matches = re.findall(r'(GÖNEN\s*-\s*YENİCE[^<]*?)(\d{2}\.\d{2}\.\d{4})[^<]*?(\d{1,3}(?:[.,]\d{1,2})?)', html, re.IGNORECASE | re.DOTALL)
@@ -208,21 +212,20 @@ def get_balikesir_data(page):
                         gonen_oran = oran
                         en_guncel_tarih_obj = tarih_obj
                         en_guncel_tarih_str = tarih_str
-                        print(f"  → Yedek regex bulundu: Tarih {tarih_str} - %{oran:.2f}")
                 except:
                     pass
 
+        # Sonuç Kontrolü
         if gonen_oran > 0:
-            print(f"  → En güncel Gönen-Yenice Barajı (Tarih: {en_guncel_tarih_str}): %{gonen_oran:.2f}")
-            print(f"  → Dönen değer: %{gonen_oran:.2f}")
+            print(f"  → En güncel Gönen-Yenice (Tarih: {en_guncel_tarih_str}): %{gonen_oran:.2f}")
             return round(gonen_oran, 2)
         
-        print("  → Gönen-Yenice için veri yakalanamadı")
-        return 0.0
-
     except Exception as e:
-        print(f"  → Balıkesir genel hata: {str(e)}")
-        return 0.0
+        print(f"  → Balıkesir tarama hatası: {str(e)}")
+
+    # 3. PLAN: MANUEL DEVREYE GİRİŞ (Hata varsa veya sonuç 0 ise)
+    print(f"  🚨 Balıkesir verisi alınamadı! Manuel değer kullanılıyor: %{MANUEL_DEGER}")
+    return MANUEL_DEGER
 # ================= 9. MUĞLA (MUSKİ) =================
 def get_mugla_data(page):
     print("   ⏳ Muğla taranıyor...")
