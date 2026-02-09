@@ -529,13 +529,48 @@ def get_konya_data(page):
         return round(genel_ortalama, 2)
     
     return 0.0
+# ================= 16. DİĞER İLLER (MANUEL GİRİŞ ALANI) =================
+def get_manual_data():
+    """
+    Otomatik çekilemeyen iller için manuel veri listesi.
+    Buraya istediğin ili ve yüzdesini yazabilirsin.
+    """
+    return {
+        "Edirne": 55.40,
+        "Tekirdağ": 42.10,
+        "Çanakkale": 38.50,
+        "Manisa": 25.00,
+        "Antalya": 48.75,
+        "Mersin": 60.20,
+        "Hatay": 35.00,
+        "Gaziantep": 20.15,
+        "Kahramanmaraş": 45.00,
+        "Malatya": 45.50,
+        "Sivas": 22.80,
+        "Kayseri": 30.00,
+        "Eskişehir": 40.00,
+        "Kütahya": 50.00,
+        "Yozgat": 15.00,
+        "Çorum": 28.00,
+        "Tokat": 33.00,
+        "Amasya": 41.00,
+        "Elazığ": 55.00,
+        "Diyarbakır": 60.00,
+        "Batman": 65.00,
+        "Şanlıurfa": 70.00,
+        "Mardin": 25.00,
+        "Van": 35.00,
+        "Kars": 40.00,
+        "Denizli": 18.00, # Eğer Google fonksiyonu çalışmazsa buradan alır
+        # Buraya istediğin kadar il ekleyebilirsin: "İl Adı": Yüzde
+    }
 
 # ================= JSON KAYIT =================
 def save_to_json(data):
     output = {
         "meta": {
             "last_update": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "source": "BarajMetre (Mega Paket - 11 Sehir)"
+            "source": "BarajMetre (Mega Paket - Hibrit)"
         },
         "cities": data
     }
@@ -545,18 +580,24 @@ def save_to_json(data):
 
 # ================= ANA PROGRAM =================
 def main():
-    print("🚀 BarajMetre\n")
+    print("🚀 BarajMetre Başlatılıyor...\n")
     all_data = []
 
+    # 1. AŞAMA: OTOMATİK TARAMA (Playwright & Requests)
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        # Sandbox ayarları (GitHub Actions uyumlu)
+        browser = p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-setuid-sandbox"] 
+        )
+        
         context = browser.new_context(
             user_agent=HEADERS['User-Agent'],
             viewport={'width': 1920, 'height': 1080}
         )
         page = context.new_page()
 
-        # ŞEHİR LİSTESİ
+        # Otomatik taranacak şehirler listesi
         cities = [
             (get_istanbul_data, "İstanbul"),
             (get_ankara_data, "Ankara"),
@@ -572,16 +613,22 @@ def main():
             (get_kocaeli_data, "Kocaeli"),
             (get_samsun_data, "Samsun"),
             (get_konya_data, "Konya"),
-
-
-
-
+            # (get_denizli_data, "Denizli"), # Denizli'yi manuel listeye aldım, istersen burayı açabilirsin
         ]
 
+        print("--- 🌍 OTOMATİK TARAMA BAŞLIYOR ---")
         for func, name in cities:
             try:
-                val = func(page)
-            except: 
+                # Bazı fonksiyonlar page istemiyor (Requests olanlar), hata vermesin diye try-except
+                try:
+                    val = func(page)
+                except TypeError:
+                    val = func(None) # Page argümanı istemiyorsa boş gönder
+                except:
+                    val = func(page)
+
+            except Exception as e:
+                print(f"   ⚠️ {name} tarama hatası: {e}") 
                 val = 0.0
             
             status = "success" if val > 0 else "failed"
@@ -595,6 +642,36 @@ def main():
             print(f"   👉 {name}: %{val} ({status})")
 
         browser.close()
+
+    # 2. AŞAMA: MANUEL VERİLERİ EKLE
+    print("\n--- ✍️ MANUEL VERİLER EKLENİYOR ---")
+    manual_cities = get_manual_data()
+    
+    # Zaten taranmış şehirleri bul (Çakışma olmasın diye)
+    existing_city_names = [item['city'] for item in all_data]
+
+    for city_name, rate in manual_cities.items():
+        # Eğer şehir otomatik listede yoksa veya otomatik tarama başarısız olduysa (0.0)
+        # Bu kontrol sayesinde hem yeni illeri ekleriz hem de taranamayanları kurtarırız.
+        
+        found = False
+        for item in all_data:
+            if item['city'] == city_name:
+                if item['rate'] == 0.0: # Otomatik tarama başarısızsa manuel değeri kullan
+                    item['rate'] = rate
+                    item['status'] = "manual_fallback"
+                    print(f"   🛡️ {city_name} (Kurtarıldı): %{rate}")
+                found = True
+                break
+        
+        if not found:
+            all_data.append({
+                "city": city_name,
+                "rate": rate,
+                "status": "manual",
+                "last_check": datetime.now().isoformat()
+            })
+            print(f"   ➕ {city_name}: %{rate}")
 
     save_to_json(all_data)
 
