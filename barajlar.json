@@ -1,6 +1,6 @@
 {
     "meta": {
-        "last_update": "2026-07-22 10:23:49",
+        "last_update": "2026-07-23 10:18:55",
         "source": "BarajMetre (Mega Paket - Hibrit)"
     },
     "cities": [
@@ -8,241 +8,241 @@
             "city": "İstanbul",
             "rate": 36.5,
             "status": "success",
-            "last_check": "2026-07-22T10:20:57.530287"
+            "last_check": "2026-07-23T10:15:52.084476"
         },
         {
             "city": "Ankara",
-            "rate": 45.49,
+            "rate": 45.37,
             "status": "success",
-            "last_check": "2026-07-22T10:20:59.229656"
+            "last_check": "2026-07-23T10:15:53.369595"
         },
         {
             "city": "Bursa",
-            "rate": 84.92,
+            "rate": 84.55,
             "status": "success",
-            "last_check": "2026-07-22T10:21:03.583521"
+            "last_check": "2026-07-23T10:15:56.610261"
         },
         {
             "city": "Adana",
-            "rate": 94.57,
-            "status": "success",
-            "last_check": "2026-07-22T10:21:13.159241"
+            "rate": 0.0,
+            "status": "failed",
+            "last_check": "2026-07-23T10:16:26.994603"
         },
         {
             "city": "Trabzon",
             "rate": 0.0,
             "status": "failed",
-            "last_check": "2026-07-22T10:21:27.362214"
+            "last_check": "2026-07-23T10:16:27.727140"
         },
         {
             "city": "Aydın",
-            "rate": 74.2,
-            "status": "success",
-            "last_check": "2026-07-22T10:21:31.668394"
+            "rate": 0.0,
+            "status": "failed",
+            "last_check": "2026-07-23T10:16:28.498236"
         },
         {
             "city": "Balıkesir",
             "rate": 95.68,
             "status": "success",
-            "last_check": "2026-07-22T10:23:01.672609"
+            "last_check": "2026-07-23T10:17:58.504558"
         },
         {
             "city": "Muğla",
             "rate": 92.0,
             "status": "success",
-            "last_check": "2026-07-22T10:23:08.655162"
+            "last_check": "2026-07-23T10:18:07.428298"
         },
         {
             "city": "Sakarya",
-            "rate": 29.99,
+            "rate": 29.98,
             "status": "success",
-            "last_check": "2026-07-22T10:23:17.871167"
+            "last_check": "2026-07-23T10:18:15.408756"
         },
         {
             "city": "Erzurum",
             "rate": 35.0,
             "status": "success",
-            "last_check": "2026-07-22T10:23:17.871190"
+            "last_check": "2026-07-23T10:18:15.408778"
         },
         {
             "city": "İzmir",
-            "rate": 61.42,
+            "rate": 61.07,
             "status": "success",
-            "last_check": "2026-07-22T10:23:19.579838"
+            "last_check": "2026-07-23T10:18:16.889665"
         },
         {
             "city": "Kocaeli",
-            "rate": 71.48,
-            "status": "success",
-            "last_check": "2026-07-22T10:23:26.421015"
+            "rate": 0.0,
+            "status": "failed",
+            "last_check": "2026-07-23T10:18:47.656296"
         },
         {
             "city": "Samsun",
-            "rate": 90.95,
-            "status": "success",
-            "last_check": "2026-07-22T10:23:44.384851"
+            "rate": 0.0,
+            "status": "failed",
+            "last_check": "2026-07-23T10:18:51.773932"
         },
         {
             "city": "Konya",
-            "rate": 33.24,
+            "rate": 33.2,
             "status": "success",
-            "last_check": "2026-07-22T10:23:49.291652"
+            "last_check": "2026-07-23T10:18:55.581178"
         },
         {
             "city": "Edirne",
             "rate": 55.4,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338208"
+            "last_check": "2026-07-23T10:18:55.625373"
         },
         {
             "city": "Tekirdağ",
             "rate": 42.1,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338221"
+            "last_check": "2026-07-23T10:18:55.625387"
         },
         {
             "city": "Çanakkale",
             "rate": 38.5,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338225"
+            "last_check": "2026-07-23T10:18:55.625391"
         },
         {
             "city": "Manisa",
             "rate": 25.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338229"
+            "last_check": "2026-07-23T10:18:55.625394"
         },
         {
             "city": "Antalya",
             "rate": 48.75,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338232"
+            "last_check": "2026-07-23T10:18:55.625398"
         },
         {
             "city": "Mersin",
             "rate": 60.2,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338235"
+            "last_check": "2026-07-23T10:18:55.625401"
         },
         {
             "city": "Hatay",
             "rate": 35.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338238"
+            "last_check": "2026-07-23T10:18:55.625404"
         },
         {
             "city": "Gaziantep",
             "rate": 20.15,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338242"
+            "last_check": "2026-07-23T10:18:55.625407"
         },
         {
             "city": "Kahramanmaraş",
             "rate": 45.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338245"
+            "last_check": "2026-07-23T10:18:55.625410"
         },
         {
             "city": "Malatya",
             "rate": 45.5,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338249"
+            "last_check": "2026-07-23T10:18:55.625413"
         },
         {
             "city": "Sivas",
             "rate": 22.8,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338252"
+            "last_check": "2026-07-23T10:18:55.625416"
         },
         {
             "city": "Kayseri",
             "rate": 30.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338256"
+            "last_check": "2026-07-23T10:18:55.625420"
         },
         {
             "city": "Eskişehir",
             "rate": 40.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338259"
+            "last_check": "2026-07-23T10:18:55.625423"
         },
         {
             "city": "Kütahya",
             "rate": 50.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338262"
+            "last_check": "2026-07-23T10:18:55.625427"
         },
         {
             "city": "Yozgat",
             "rate": 15.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338266"
+            "last_check": "2026-07-23T10:18:55.625430"
         },
         {
             "city": "Çorum",
             "rate": 28.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338269"
+            "last_check": "2026-07-23T10:18:55.625433"
         },
         {
             "city": "Tokat",
             "rate": 33.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338273"
+            "last_check": "2026-07-23T10:18:55.625437"
         },
         {
             "city": "Amasya",
             "rate": 41.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338276"
+            "last_check": "2026-07-23T10:18:55.625440"
         },
         {
             "city": "Elazığ",
             "rate": 55.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338280"
+            "last_check": "2026-07-23T10:18:55.625444"
         },
         {
             "city": "Diyarbakır",
             "rate": 60.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338283"
+            "last_check": "2026-07-23T10:18:55.625447"
         },
         {
             "city": "Batman",
             "rate": 65.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338287"
+            "last_check": "2026-07-23T10:18:55.625451"
         },
         {
             "city": "Şanlıurfa",
             "rate": 70.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338291"
+            "last_check": "2026-07-23T10:18:55.625454"
         },
         {
             "city": "Mardin",
             "rate": 25.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338295"
+            "last_check": "2026-07-23T10:18:55.625458"
         },
         {
             "city": "Van",
             "rate": 35.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338298"
+            "last_check": "2026-07-23T10:18:55.625461"
         },
         {
             "city": "Kars",
             "rate": 40.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338301"
+            "last_check": "2026-07-23T10:18:55.625465"
         },
         {
             "city": "Denizli",
             "rate": 18.0,
             "status": "manual",
-            "last_check": "2026-07-22T10:23:49.338305"
+            "last_check": "2026-07-23T10:18:55.625469"
         }
     ]
 }
